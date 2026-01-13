@@ -141,34 +141,41 @@ export const generateImage = async (req, res)=>{
 }
 
 
-export const removeImageBackground = async (req, res)=>{
-    try {
-        const { userId } = req.auth();
-        const image = req.file;
-        const plan = req.plan;
+export const removeImageBackground = async (req, res) => {
+  try {
+    const { userId } = req.auth(); 
+    const image = req.file;       
+    const plan = req.plan;       
 
-        if(plan !== 'premium'){
-            return res.json({ success: false, message: "This feature is only available for premium subscriptions."})
-        }
-
-        const {secure_url} =  await cloudinary.uploader.upload(image.path, {
-            transformation: [
-                {
-                    effect: 'background_removal',
-                    background_removal: 'remove_the_background'
-                }
-            ]
-        })
-        
-        await sql` INSERT INTO creations (user_id, prompt, content, type)
-        VALUES (${userId}, 'Remove background from image', ${secure_url}, 'image')`;
-
-        res.json({ success: true, content: secure_url})
-    } catch (error) {
-        console.log(error.message)
-        res.json({success: false, message: error.message})
+    if (plan !== 'premium') {
+      return res.json({
+        success: false,
+        message: "This feature is only available for premium subscriptions."
+      });
     }
-}
+
+    // Upload to Cloudinary with background removal and transparency
+    const { secure_url } = await cloudinary.uploader.upload(image.path, {
+      format: "png",                   
+      background_removal: "cloudinary_ai",
+      transformation: [{ effect: "background_removal" }]
+    });
+
+    // Remove temporary local file
+    fs.unlinkSync(image.path);
+
+    await sql`
+      INSERT INTO creations (user_id, prompt, content, type)
+      VALUES (${userId}, 'Remove background from image', ${secure_url}, 'image')
+    `;
+
+    res.json({ success: true, content: secure_url });
+
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
 export const removeImageObject = async (req, res)=>{
     try {
