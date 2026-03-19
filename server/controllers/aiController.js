@@ -27,21 +27,19 @@ export const generateArticle = async (req, res)=>{
         if(plan !== 'premium' && free_usage >= 10){
             return res.json({ success: false, message: "Limit reached. Upgrade continue."})
         }
+        const fullPrompt = `Write a detailed, unique article about: ${prompt}.\n\nRequirements:\n- Approximate length: ${length} words.\n- Use a professional and engaging tone.\n- Include a compelling title.\n- Structure with clear headings (H1, H2, H3).\n- Format the entire response in Markdown.\n- Ensure the content is informative and well-researched.\n\nType: ${length > 1200 ? 'Deep-dive' : length > 800 ? 'Standard' : 'Brief overview'}`;
+
         const response = await AI.chat.completions.create({
-            model: "gemini-2.5-flash",
+            model: "gemini-2.0-flash",
             messages: [
                 {   role: "user",
-                    content: prompt,
+                    content: fullPrompt,
                 },
             ],
             temperature: 0.7,
-            max_tokens: length,
+            max_tokens: Math.floor(length * 1.5),
         });
 
-        // // const content = response.choices[0].message.content
-        // const content = response.choices[0].message.content
-        //     .map(part => part.text || "")
-        //     .join("");
         let content = response.choices[0].message.content;
 
         // 🔥 FIX: handle string OR array
@@ -63,8 +61,12 @@ export const generateArticle = async (req, res)=>{
 
         res.json({ success: true, content})
     } catch (error) {
-        console.log(error.message)
-        res.json({success: false, message: error.message})
+        console.log("AI Article Error:", error.message);
+        let userMessage = error.message;
+        if (error.status === 429) {
+            userMessage = "AI Rate limit reached. Please wait a few seconds and try again.";
+        }
+        res.json({success: false, message: userMessage})
     }
 }
 
@@ -103,8 +105,12 @@ export const generateBlogTitle = async (req, res)=>{
 
         res.json({ success: true, content})
     } catch (error) {
-        console.log(error.message)
-        res.json({success: false, message: error.message})
+        console.log("AI Generation Error:", error.message);
+        let userMessage = error.message;
+        if (error.status === 429) {
+            userMessage = "AI Rate limit reached. Please wait a few seconds and try again.";
+        }
+        res.json({success: false, message: userMessage})
     }
 }
 
@@ -135,8 +141,12 @@ export const generateImage = async (req, res)=>{
 
         res.json({ success: true, content: secure_url})
     } catch (error) {
-        console.log(error.message)
-        res.json({success: false, message: error.message})
+        console.log("AI Image Error:", error.message);
+        let userMessage = error.message;
+        if (error.status === 429) {
+            userMessage = "AI Rate limit reached. Please wait a few seconds and try again.";
+        }
+        res.json({success: false, message: userMessage})
     }
 }
 
@@ -172,8 +182,12 @@ export const removeImageBackground = async (req, res) => {
     res.json({ success: true, content: secure_url });
 
   } catch (error) {
-    console.error(error);
-    res.json({ success: false, message: error.message });
+    console.log("AI Background Removal Error:", error.message);
+    let userMessage = error.message;
+    if (error.status === 429) {
+      userMessage = "AI Rate limit reached. Please wait a few seconds and try again.";
+    }
+    res.json({ success: false, message: userMessage });
   }
 };
 
@@ -200,8 +214,12 @@ export const removeImageObject = async (req, res)=>{
 
         res.json({ success: true, content: imageUrl})
     } catch (error) {
-        console.log(error.message)
-        res.json({success: false, message: error.message})
+        console.log("AI Generation Error:", error.message);
+        let userMessage = error.message;
+        if (error.status === 429) {
+            userMessage = "AI Rate limit reached. Please wait a few seconds and try again.";
+        }
+        res.json({success: false, message: userMessage})
     }
 }
 
@@ -229,10 +247,10 @@ export const resumeReview = async (req, res)=>{
         const prompt = `Review the following resume and provide constructive feedback on its strengths, weakness, and areas for immprovement. Resume Content:\n\n${pdfData.text}`
 
         const response = await AI.chat.completions.create({
-            model: "gemini-1.5-flash",
+            model: "gemini-2.0-flash",
             messages: [{ role: "user", content: prompt, }, ],
             temperature: 0.7,
-            max_tokens: 1000,
+            max_tokens: 1500,
         });
 
         const content = response.choices[0].message.content
@@ -242,7 +260,11 @@ export const resumeReview = async (req, res)=>{
 
         res.json({ success: true, content})
     } catch (error) {
-        console.log(error.message)
-        res.json({success: false, message: error.message})
+        console.log("AI Generation Error:", error.message);
+        let userMessage = error.message;
+        if (error.status === 429) {
+            userMessage = "AI Rate limit reached. Please wait a few seconds and try again.";
+        }
+        res.json({success: false, message: userMessage})
     }
 }
