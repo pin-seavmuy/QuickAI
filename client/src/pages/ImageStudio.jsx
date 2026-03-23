@@ -1,9 +1,11 @@
-import { ArrowLeft, Wand2, Sparkles, Image as ImageIcon, Download, Eraser, Trash2, ArrowRight, RotateCcw, Search, Eye, X } from 'lucide-react'
+import { ArrowLeft, HelpCircle, Wand2, Sparkles, Image as ImageIcon, Download, Eraser, Trash2, ArrowRight, RotateCcw, Search, Eye, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react'
 import axios from 'axios'
 import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
+import { driver } from "driver.js"
+import { downloadImage } from '../utils/download'
 
 const ImageStudio = () => {
     const [input, setInput] = useState(null)
@@ -59,6 +61,32 @@ const ImageStudio = () => {
             fetchHistory()
         }
     }, [isLoaded])
+
+    const startTour = () => {
+        const driverObj = driver({
+            showProgress: true,
+            steps: [
+                { element: '#studio-header', popover: { title: 'AI Image Studio', description: 'Welcome to your creative laboratory! Here you can swap backgrounds or erase objects with AI magic.', side: "bottom", align: 'start' }},
+                { element: '#mode-selector', popover: { title: 'Select Your Tool', description: 'Choose between "Background Swap" to change the scenery, or "Magic Eraser" to remove unwanted objects.', side: "right", align: 'start' }},
+                { element: '#image-upload-area', popover: { title: 'Upload Source', description: 'Drop your image here to begin the transformation.', side: "right", align: 'start' }},
+                { element: '#dynamic-input-area', popover: { title: 'Configuration', description: 'Enter your prompt or target object details here to guide the AI.', side: "right", align: 'start' }},
+                { element: '#process-btn', popover: { title: 'Cast Magic', description: 'Click here to process your image. Our high-performance AI will handle the rest!', side: "top", align: 'start' }},
+                { element: '#result-deck', popover: { title: 'Magic Result', description: 'Your processed image will appear here. You can then download or reset the studio.', side: "left", align: 'start' }},
+                { element: '#studio-history', popover: { title: 'Your History', description: 'All your previous studio creations are saved here for easy access.', side: "top", align: 'start' }},
+            ]
+        });
+        driverObj.drive();
+    }
+
+    React.useEffect(() => {
+        const hasSeenTour = localStorage.getItem('hasSeenStudioTour');
+        if (!hasSeenTour && isLoaded && history.length >= 0) {
+            setTimeout(() => {
+                startTour();
+                localStorage.setItem('hasSeenStudioTour', 'true');
+            }, 1000);
+        }
+    }, [isLoaded]);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0]
@@ -134,7 +162,7 @@ const ImageStudio = () => {
                 </button>
                 
                 {/* Header Section */}
-                <div className='flex flex-col md:flex-row md:items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-700'>
+                <div id="studio-header" className='flex flex-col md:flex-row md:items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-700'>
                     <div className='space-y-1'>
                         <div className='flex items-center gap-3'>
                             <div className='p-2.5 bg-gradient-to-br from-[#FF416C] to-[#FF4B2B] rounded-xl shadow-lg shadow-orange-200'>
@@ -144,6 +172,14 @@ const ImageStudio = () => {
                         </div>
                         <p className='text-slate-500 font-medium text-sm ml-1'>Generative Magic Eraser & Background Swap</p>
                     </div>
+
+                    <button 
+                        onClick={startTour}
+                        className='flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-50 transition-all shadow-sm active:scale-95 group'
+                    >
+                        <HelpCircle className='w-4 h-4 text-orange-500 group-hover:rotate-12 transition-transform' />
+                        Tour Guide
+                    </button>
                 </div>
 
                 <div className='grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch'>
@@ -153,7 +189,7 @@ const ImageStudio = () => {
                         <div className='bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex-1 flex flex-col justify-between space-y-8 lg:min-h-[500px] lg:max-h-[600px] overflow-y-auto custom-scrollbar'>
                             
                             {/* Mode Selector */}
-                            <div className='space-y-3'>
+                            <div id="mode-selector" className='space-y-3'>
                                 <p className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>Select Mode</p>
                                 <div className='flex p-1.5 bg-slate-50 rounded-2xl border border-slate-100'>
                                     <button
@@ -174,7 +210,7 @@ const ImageStudio = () => {
                             </div>
 
                             {/* Image Upload */}
-                            <div className='space-y-3'>
+                            <div id="image-upload-area" className='space-y-3'>
                                 <p className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>Source Image</p>
                                 <label className='group relative block w-full aspect-video rounded-3xl border-2 border-dashed border-slate-200 hover:border-orange-400 transition-all cursor-pointer overflow-hidden bg-slate-50/50 hover:bg-orange-50/30'>
                                     {preview ? (
@@ -192,7 +228,7 @@ const ImageStudio = () => {
                             </div>
 
                             {/* Dynamic Input Based on Mode */}
-                            <div className='space-y-4 pt-2 border-t border-slate-100'>
+                            <div id="dynamic-input-area" className='space-y-4 pt-2 border-t border-slate-100'>
                                 {mode === 'swap' ? (
                                     <div className='space-y-3 animate-in fade-in zoom-in-95 duration-300'>
                                         <p className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>New Background Prompt</p>
@@ -219,6 +255,7 @@ const ImageStudio = () => {
 
                             <button
                                 onClick={onProcessHandler}
+                                id="process-btn"
                                 disabled={loading || !input}
                                 className='w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF416C] to-[#FF4B2B] text-white font-bold text-sm shadow-xl shadow-orange-200 hover:shadow-2xl hover:shadow-orange-300 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-auto'
                             >
@@ -238,7 +275,7 @@ const ImageStudio = () => {
                     </div>
 
                     {/* Result Deck */}
-                    <div className='lg:col-span-7 flex flex-col animate-in fade-in slide-in-from-right-4 duration-700 delay-300'>
+                    <div id="result-deck" className='lg:col-span-7 flex flex-col animate-in fade-in slide-in-from-right-4 duration-700 delay-300'>
                         <div className='bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col h-full lg:min-h-[500px] lg:max-h-[600px]'>
                             <div className='flex items-center justify-between mb-6'>
                                 <div className='flex items-center gap-3'>
@@ -330,7 +367,7 @@ const ImageStudio = () => {
 
 
                 {/* Creation History Section */}
-                <div className='w-full space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-10'>
+                <div id="studio-history" className='w-full space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-10'>
                     <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
                         <div className='flex items-center gap-3'>
                             <div className='p-2 bg-slate-100 rounded-lg border border-slate-200'>

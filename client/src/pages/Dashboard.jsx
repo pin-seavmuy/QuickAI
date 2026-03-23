@@ -6,6 +6,7 @@ import CreationItem from '../components/CreationItem'
 import toast from 'react-hot-toast'
 import { AiToolsData } from '../assets/assets'
 import { useNavigate } from 'react-router-dom'
+import { driver } from "driver.js"
 
 const Dashboard = () => {
   const [creations, setCreations] = useState([])
@@ -142,6 +143,30 @@ const Dashboard = () => {
     }
   }
 
+  const startTour = () => {
+    const driverObj = driver({
+      showProgress: true,
+      steps: [
+        { element: '#welcome-header', popover: { title: 'Welcome to QuickAI', description: 'This is your creative hub. Let\'s show you around!', side: "bottom", align: 'start' }},
+        { element: '#stats-grid', popover: { title: 'Your Activity', description: 'Track your creations, status, and personalized metrics here.', side: "bottom", align: 'start' }},
+        { element: '#ai-tools-grid', popover: { title: 'Powerful AI Tools', description: 'Jump into any of our specialized AI tools to start creating magic.', side: "top", align: 'start' }},
+        { element: '#recent-creations-section', popover: { title: 'Recent Creations', description: 'Manage and re-access your previous work easily.', side: "top", align: 'start' }},
+        { element: '#new-creation-btn', popover: { title: 'Start Fresh', description: 'Ready to create something new? Click here to begin!', side: "left", align: 'start' }},
+      ]
+    });
+    driverObj.drive();
+  }
+
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem('hasSeenDashboardTour');
+    if (!hasSeenTour && !loading && creations.length >= 0) {
+      setTimeout(() => {
+        startTour();
+        localStorage.setItem('hasSeenDashboardTour', 'true');
+      }, 1000);
+    }
+  }, [loading]);
+
   const toggleSelect = (id) => {
     setSelectedIds(prev => 
         prev.includes(id) ? prev.filter(sid => sid !== id) : [...prev, id]
@@ -180,7 +205,7 @@ const Dashboard = () => {
       <div className='w-full space-y-6'>
 
         {/* Welcome Header */}
-        <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-700'>
+        <div id="welcome-header" className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-700'>
           <div>
             <h1 className='text-xl sm:text-2xl font-bold text-slate-800 tracking-tight'>
               Welcome back, {user?.firstName || 'Creator'}! 👋
@@ -189,6 +214,7 @@ const Dashboard = () => {
           </div>
           <button
             onClick={() => navigate('/ai/generate-images')}
+            id="new-creation-btn"
             className='flex items-center justify-center gap-2 bg-slate-900 text-white px-5 py-2 rounded-lg hover:bg-slate-800 transition-all shadow-md active:scale-95'
           >
             <Plus className='w-4 h-4' />
@@ -197,7 +223,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150'>
+        <div id="stats-grid" className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150'>
           <div className='bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex items-center gap-3.5'>
             <div className='w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center'>
               <Sparkles className='w-5 h-5' />
@@ -263,7 +289,7 @@ const Dashboard = () => {
         {/* Quick Actions / Tools Area */}
         <div className='space-y-4'>
           
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+          <div id="ai-tools-grid" className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
             {AiToolsData.map((tool, index) => (
               <div
                 key={index}
@@ -336,7 +362,7 @@ const Dashboard = () => {
         )}
 
         {/* Recent Creations Section */}
-        <div className='space-y-3.5 pb-8'>
+        <div id="recent-creations-section" className='space-y-3.5 pb-8'>
           <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
             <h2 className='text-lg font-bold text-slate-800 shrink-0'>Recent Creations</h2>
 

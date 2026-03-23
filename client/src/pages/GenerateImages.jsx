@@ -1,10 +1,8 @@
-import { ArrowLeft, Image, Sparkles, Trash2, Download, Search, LayoutGrid, X, Maximize2 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import { useAuth, useUser } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
 import { downloadImage } from '../utils/download'
+import { driver } from "driver.js"
+import { HelpCircle } from 'lucide-react'
 
 
 const GenerateImages = () => {
@@ -62,6 +60,32 @@ const GenerateImages = () => {
         }
     }, [user])
 
+    const startTour = () => {
+        const driverObj = driver({
+            showProgress: true,
+            steps: [
+                { element: '#generate-header', popover: { title: 'AI Image Generator', description: 'Transform your thoughts into stunning visuals. Describe anything, and watch it come to life!', side: "bottom", align: 'start' }},
+                { element: '#vision-input', popover: { title: 'Your Vision', description: 'Type your prompt here. Be as descriptive as you like!', side: "right", align: 'start' }},
+                { element: '#style-selector', popover: { title: 'Artistic Styles', description: 'Choose a style to give your image a unique look and feel.', side: "right", align: 'start' }},
+                { element: '#community-toggle', popover: { title: 'Share with Community', description: 'Toggle this to show your creation in the public gallery.', side: "right", align: 'start' }},
+                { element: '#generate-btn', popover: { title: 'Start Creation', description: 'Hit this button to start the AI generation process.', side: "top", align: 'start' }},
+                { element: '#generate-results', popover: { title: 'Your Artwork', description: 'The generated masterpiece will appear here. You can download it directly!', side: "left", align: 'start' }},
+                { element: '#generate-history', popover: { title: 'Visualization Gallery', description: 'All your previously generated images are stored here.', side: "top", align: 'start' }},
+            ]
+        });
+        driverObj.drive();
+    }
+
+    useEffect(() => {
+        const hasSeenTour = localStorage.getItem('hasSeenGenerateTour');
+        if (!hasSeenTour && user && history.length >= 0) {
+            setTimeout(() => {
+                startTour();
+                localStorage.setItem('hasSeenGenerateTour', 'true');
+            }, 1000);
+        }
+    }, [user]);
+
   const onSubmitHandler = async (e)=>{
         e.preventDefault();
         try {
@@ -96,17 +120,27 @@ const GenerateImages = () => {
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch w-full'>
             {/* Left Column: Configuration */}
             <form onSubmit={onSubmitHandler} className='w-full p-6 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-6 flex flex-col justify-between lg:min-h-[500px] lg:max-h-[600px] overflow-y-auto custom-scrollbar shadow-green-100/10'>
-                <div className='flex items-center gap-3'>
-                    <div className='p-2 bg-green-50 rounded-lg'>
-                        <Sparkles className='w-6 h-6 text-[#00AD25]'/>
+                <div id="generate-header" className='flex items-center justify-between'>
+                    <div className='flex items-center gap-3'>
+                        <div className='p-2 bg-green-50 rounded-lg'>
+                            <Sparkles className='w-6 h-6 text-[#00AD25]'/>
+                        </div>
+                        <div>
+                            <h1 className='text-xl font-bold text-slate-800'>AI Image Generate</h1>
+                            <p className='text-xs text-slate-500 font-medium'>Create your perfect visualization</p>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className='text-xl font-bold text-slate-800'>AI Image Generate</h1>
-                        <p className='text-xs text-slate-500 font-medium'>Create your perfect visualization</p>
-                    </div>
+                    <button 
+                        type="button"
+                        onClick={startTour}
+                        className='p-2 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-green-500 transition-colors'
+                        title="Help Tour"
+                    >
+                        <HelpCircle className='w-5 h-5' />
+                    </button>
                 </div>
 
-                <div className='space-y-3'>
+                <div id="vision-input" className='space-y-3'>
                     <p className='text-sm font-bold text-slate-700 uppercase tracking-tight'>Describe Your Vision</p>
                     <textarea 
                         onChange={(e)=>setInput(e.target.value)} 
@@ -118,7 +152,7 @@ const GenerateImages = () => {
                     />
                 </div>
 
-                <div className='space-y-4'>
+                <div id="style-selector" className='space-y-4'>
                     <div className='flex gap-2 flex-wrap'>
                         {imageStyle.map((item)=>(
                             <span 
@@ -131,7 +165,7 @@ const GenerateImages = () => {
                         ))}
                     </div>
                 </div>
-                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <div id="community-toggle" className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <div className='space-y-0.5'>
                         <p className="text-sm font-bold text-slate-800">Community Gallery</p>
                         <p className='text-[10px] text-slate-500 font-medium'>Share this creation with others</p>
@@ -144,6 +178,7 @@ const GenerateImages = () => {
                 
                 <button 
                     disabled={loading} 
+                    id="generate-btn"
                     className='w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#00AD25] to-[#04FF50] text-white px-6 py-3.5 mt-auto text-sm font-bold rounded-xl hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-100'
                 >
                     {loading ? (
@@ -161,7 +196,7 @@ const GenerateImages = () => {
             </form>
 
             {/* Right Column: Preview */}
-            <div className='w-full p-6 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-5 flex flex-col lg:min-h-[500px] lg:max-h-[600px] shadow-green-100/20'>
+            <div id="generate-results" className='w-full p-6 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-5 flex flex-col lg:min-h-[500px] lg:max-h-[600px] shadow-green-100/20'>
                 <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-3'>
                         <div className='p-2 bg-green-50 rounded-lg'>
@@ -217,7 +252,7 @@ const GenerateImages = () => {
         </div>
 
         {/* Creation History Section */}
-        <div className='w-full space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-10'>
+        <div id="generate-history" className='w-full space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-10'>
             <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
                 <div className='flex items-center gap-3'>
                     <div className='p-2 bg-slate-100 rounded-lg border border-slate-200'>
