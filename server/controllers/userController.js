@@ -61,3 +61,39 @@ export const toggleLikeCreation = async (req, res) => {
         res.json({ success: false, message: error.message})
     }
 }
+
+export const deleteCreation = async (req, res) => {
+    try {
+        const {userId} = req.auth()
+        const {id} = req.body
+
+        // Delete the creation only if it belongs to the authenticated user
+        const result = await sql`DELETE FROM creations WHERE id = ${id} AND user_id = ${userId} RETURNING *`;
+
+        if (result.length === 0) {
+            return res.json({ success: false, message: "Creation not found or unauthorized" });
+        }
+
+        res.json({ success: true, message: "Creation deleted successfully" });
+    } catch (error) {
+        res.json({ success: false, message: error.message})
+    }
+}
+
+export const deleteMultipleCreations = async (req, res) => {
+    try {
+        const { userId } = req.auth()
+        const { ids } = req.body // Array of IDs
+        
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.json({ success: false, message: "No IDs provided" });
+        }
+
+        // Delete multiple items belonging to the user
+        const result = await sql`DELETE FROM creations WHERE id = ANY(${ids}) AND user_id = ${userId} RETURNING *`;
+
+        res.json({ success: true, message: `${result.length} creations deleted successfully` });
+    } catch (error) {
+        res.json({ success: false, message: error.message})
+    }
+}

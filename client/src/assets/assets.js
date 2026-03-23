@@ -5,7 +5,7 @@ import star_icon from "./star_icon.svg";
 import star_dull_icon from "./star_dull_icon.svg";
 import profile_img_1 from "./profile_img_1.png";
 import arrow_icon from "./arrow_icon.svg";
-import { SquarePen, Hash, Image, Eraser, Scissors, FileText } from 'lucide-react'
+import { Camera, Eraser, FileText, Hash, Image, Scissors, Sparkles, SquarePen, Wand2 } from 'lucide-react'
 import ai_gen_img_1 from "./ai_gen_img_1.png";
 import ai_gen_img_2 from "./ai_gen_img_2.png";
 import ai_gen_img_3 from "./ai_gen_img_3.png";
@@ -62,6 +62,27 @@ export const AiToolsData = [
         Icon: FileText,
         bg: { from: '#12B7AC', to: '#08B6CE' },
         path: '/ai/review-resume'
+    },
+    {
+        title: 'AI Image Upscaler',
+        description: 'Breathe new life into low-resolution images with our generative AI upscaling and restoration.',
+        Icon: Sparkles,
+        bg: { from: '#FF9966', to: '#FF5E62' },
+        path: '/ai/upscale-image'
+    },
+    {
+        title: 'AI Image to Prompt',
+        description: 'Upload an image and let AI reverse-engineer the creative text prompt used to describe it.',
+        Icon: Camera,
+        bg: { from: '#8E37EB', to: '#E549A3' },
+        path: '/ai/image-to-prompt'
+    },
+    {
+        title: 'AI Image Studio',
+        description: 'The ultimate editing suite: Generative background swap and precision magic eraser in one tool.',
+        Icon: Wand2,
+        bg: { from: '#FF416C', to: '#FF4B2B' },
+        path: '/ai/image-studio'
     }
 ]
 

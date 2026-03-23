@@ -9,6 +9,9 @@ import GenerateImages from './pages/GenerateImages'
 import RemoveBackground from './pages/RemoveBackground'
 import RemoveObject from './pages/RemoveObject'
 import ReviewResume from './pages/ReviewResume'
+import UpscaleImage from './pages/UpscaleImage'
+import ReverseAI from './pages/ReverseAI'
+import ImageStudio from './pages/ImageStudio'
 import Community from './pages/Community'
 import { useAuth } from '@clerk/clerk-react'
 import { useEffect } from 'react'
@@ -29,6 +32,9 @@ const App = () => {
           <Route path='remove-background' element={<RemoveBackground />} />
           <Route path='remove-object' element={<RemoveObject />} />
           <Route path='review-resume' element={<ReviewResume />} />
+          <Route path='upscale-image' element={<UpscaleImage />} />
+          <Route path='image-to-prompt' element={<ReverseAI />} />
+          <Route path='image-studio' element={<ImageStudio />} />
           <Route path='community' element={<Community />} />
         </Route>
       </Routes>

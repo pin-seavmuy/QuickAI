@@ -15,10 +15,12 @@ const AiTools = () => {
 
         <div className='flex flex-wrap met-10 justify-center'>
             {AiToolsData.map((tool, index)=>(
-                <div onClick={()=> user && navigate(tool.path)} key={index} className='p-8 m-4 max-w-xs rounded-lg bg-[#FDFDFE] shadow-lg border border-gray-100 hover:-translate-y-1 transition-all duration-300 cursor-pointer'>
-                    <tool.Icon className='w-12 h-12 p-3 text-white rounded-xl' style={{background: `linear-gradient(to bottom, ${tool.bg.from}, ${tool.bg.to})`}}/>
-                    <h3 className='mt-6 mb-3 text-lg font-semibold'>{tool.title}</h3>
-                    <p className='text-gray-400 text-sm max-w-[95%]'>{tool.description}</p>
+                <div onClick={()=> user && navigate(tool.path)} key={index} className='p-6 m-4 w-full sm:w-[320px] rounded-2xl bg-white shadow-md border border-slate-100 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group'>
+                    <div className='flex items-center gap-4 mb-4'>
+                        <tool.Icon className='w-12 h-12 p-3 text-white rounded-xl shadow-sm transform group-hover:rotate-6 transition-transform duration-300' style={{background: `linear-gradient(to bottom, ${tool.bg.from}, ${tool.bg.to})`}}/>
+                        <h3 className='text-lg font-bold text-slate-800 leading-tight'>{tool.title}</h3>
+                    </div>
+                    <p className='text-slate-500 text-sm leading-relaxed'>{tool.description}</p>
                 </div>
             ))}
         </div>

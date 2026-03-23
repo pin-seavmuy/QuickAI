@@ -1,4 +1,5 @@
-import { FileText, Sparkles, FileSearch } from 'lucide-react';
+import { ArrowLeft, FileText, Sparkles, FileSearch } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react'
 import axios from 'axios'
 import { useAuth } from '@clerk/clerk-react';
@@ -9,6 +10,7 @@ const ReviewResume = () => {
   const [input, setInput] = useState(null)
   const [loading, setLoading] = useState(false)
   const [content, setContent] = useState('')
+  const navigate = useNavigate()
   const {getToken} = useAuth()
   
   const onSubmitHandler = async (e)=>{
@@ -33,10 +35,19 @@ const ReviewResume = () => {
   }
 
   return (
-    <div className='h-full overflow-y-scroll p-6 text-slate-700 bg-slate-50/30'>
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 items-start w-full transition-all duration-500'>
+    <div className='h-full overflow-y-scroll p-6 text-slate-700 bg-slate-50/30 space-y-4'>
+        {/* Navigation Bar */}
+        <button 
+            onClick={() => navigate('/ai')}
+            className='flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-widest group'
+        >
+            <ArrowLeft className='w-4 h-4 group-hover:-translate-x-1 transition-transform' />
+            Back to Dashboard
+        </button>
+
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch w-full transition-all duration-500'>
             {/* Left Column: Configuration */}
-            <form onSubmit={onSubmitHandler} className='w-full p-6 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-8 h-fit'>
+            <form onSubmit={onSubmitHandler} className='w-full p-6 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-8 flex flex-col justify-between'>
                 <div className='flex items-center gap-3'>
                     <div className='p-2 bg-emerald-50 rounded-lg'>
                         <Sparkles className='w-6 h-6 text-[#00DA83]'/>
@@ -66,7 +77,7 @@ const ReviewResume = () => {
 
                 <button 
                     disabled={loading} 
-                    className='w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#00DA83] to-[#009BB3] text-white px-6 py-3.5 mt-6 text-sm font-bold rounded-xl hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-100'
+                    className='w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#00DA83] to-[#009BB3] text-white px-6 py-3.5 mt-auto text-sm font-bold rounded-xl hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-100'
                 >
                     {loading ? (
                         <div className='flex items-center gap-2'>
@@ -83,7 +94,7 @@ const ReviewResume = () => {
             </form>
 
             {/* Right Column: Result Deck */}
-            <div className='w-full p-6 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-6 flex flex-col min-h-[500px] h-fit lg:max-h-[800px]'>
+            <div className='w-full p-6 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-6 flex flex-col min-h-[500px] lg:max-h-[800px]'>
                 <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-3'>
                         <div className='p-2 bg-emerald-50 rounded-lg'>
@@ -106,7 +117,7 @@ const ReviewResume = () => {
                         </div>
                     ) : (
                         <div className='p-6 overflow-y-auto custom-scrollbar h-full'>
-                            <div className='prose prose-slate max-w-none prose-sm sm:prose-base animate-in fade-in slide-in-from-bottom-4 duration-700'>
+                            <div className='prose prose-slate max-w-none prose-sm sm:prose-base text-justify animate-in fade-in slide-in-from-bottom-4 duration-700'>
                                 <Markdown>{content}</Markdown>
                             </div>
                         </div>
