@@ -28,6 +28,7 @@ const Dashboard = () => {
         case 'resume': return 'Resume'
         case 'upscale': return 'Image Upscaler'
         case 'bg-swap': return 'Background Swap'
+        case 'reverse-image': return 'Image to Prompt'
         default: return tag
     }
   }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Markdown from 'react-markdown'
 import toast from 'react-hot-toast'
-import { Image as ImageIcon, FileText, Hash, Scissors, Eraser, SquarePen, Calendar, ArrowRight, Download, Eye, X, Copy, Check, Share2, Trash2, ChevronDown, Zap, Sparkles } from 'lucide-react'
+import { Image as ImageIcon, FileText, Hash, Scissors, Eraser, SquarePen, Calendar, ArrowRight, Download, Eye, X, Copy, Check, Share2, Trash2, ChevronDown, Zap, Sparkles, Camera } from 'lucide-react'
 import { downloadImage } from '../utils/download'
 import { useNavigate } from 'react-router-dom'
 
@@ -13,6 +13,7 @@ const typeMap = {
     'remove-background': { Icon: Eraser, color: 'text-orange-600', bg: 'bg-orange-50' },
     'remove-object': { Icon: Scissors, color: 'text-indigo-600', bg: 'bg-indigo-50' },
     'review-resume': { Icon: FileText, color: 'text-teal-600', bg: 'bg-teal-50' },
+    'reverse-image': { Icon: Camera, color: 'text-purple-600', bg: 'bg-purple-50' },
 }
 
 const CreationItem = ({ item, onDelete, isSelected, onSelect }) => {
@@ -24,6 +25,7 @@ const CreationItem = ({ item, onDelete, isSelected, onSelect }) => {
 
     // Handle Dual Images for Comparison (Upscale, BG Removal, Object Removal)
     const showComparison = ['upscale', 'remove-background', 'remove-object'].includes(item.type) || item.content.includes('|')
+    const isReverseAI = item.type === 'reverse-image'
     const [originalUrl, processedUrl] = item.content.includes('|') ? item.content.split('|') : [null, item.content]
     const config = typeMap[item.type] || { Icon: SquarePen, color: 'text-slate-600', bg: 'bg-slate-50' }
 
@@ -99,9 +101,19 @@ const CreationItem = ({ item, onDelete, isSelected, onSelect }) => {
                             {/* Generated Content Side */}
                             <div className='space-y-3'>
                                 <h3 className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>Result</h3>
-                                {item.type === 'image' || showComparison ? (
+                                {item.type === 'image' || showComparison || isReverseAI ? (
                                     <div className='relative group/img w-full max-w-sm overflow-hidden rounded-xl shadow-md border border-slate-100 bg-slate-50'>
-                                        {showComparison ? (
+                                        {isReverseAI ? (
+                                            <div className='flex flex-col space-y-4 p-4 bg-white'>
+                                                <div className='relative aspect-video rounded-xl overflow-hidden border border-slate-100 shadow-sm'>
+                                                    <img src={item.content} className='w-full h-full object-cover' alt="Source" />
+                                                    <span className='absolute top-2 left-2 px-2 py-0.5 bg-black/50 backdrop-blur-md text-white text-[8px] font-bold uppercase tracking-widest rounded'>Source View</span>
+                                                </div>
+                                                <div className='p-4 bg-purple-50 rounded-xl border border-purple-100'>
+                                                    <p className='text-xs text-slate-700 italic font-medium leading-relaxed line-clamp-4'>"{item.prompt}"</p>
+                                                </div>
+                                            </div>
+                                        ) : showComparison ? (
                                             <div className='grid grid-cols-2 gap-4 w-full h-full p-2'>
                                                 <div 
                                                     onClick={(e) => { e.stopPropagation(); setLightboxMode('original'); setShowLightbox(true); }}

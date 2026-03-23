@@ -89,7 +89,7 @@ const BlogTitles = () => {
             className='flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-widest group'
         >
             <ArrowLeft className='w-4 h-4 group-hover:-translate-x-1 transition-transform' />
-            Back to Dashboard
+            Back
         </button>
 
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch w-full transition-all duration-500'>

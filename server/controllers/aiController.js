@@ -351,6 +351,11 @@ export const reverseImage = async (req, res) => {
         const base64Image = imageBuffer.toString('base64');
         const dataUrl = `data:${req.file.mimetype};base64,${base64Image}`;
 
+        // 1. Upload original image to Cloudinary for history reference
+        const uploadResponse = await cloudinary.uploader.upload(req.file.path, {
+            format: "png",
+        });
+
         const response = await AI.chat.completions.create({
             model: "meta-llama/llama-4-scout-17b-16e-instruct",
             messages: [
@@ -361,10 +366,10 @@ export const reverseImage = async (req, res) => {
                         {
                             type: "image_url",
                             image_url: {
-                                url: dataUrl,
+                                url: uploadResponse.secure_url,
                             },
                         },
-                    ],
+                     ],
                 },
             ],
             max_tokens: 300,
@@ -375,7 +380,7 @@ export const reverseImage = async (req, res) => {
         // Save to database
         await sql`
             INSERT INTO creations (user_id, prompt, content, type)
-            VALUES (${userId}, 'Reverse AI Analytics', ${promptResult}, 'reverse-ai')
+            VALUES (${userId}, ${promptResult}, ${uploadResponse.secure_url}, 'reverse-image')
         `;
 
         if (plan !== 'premium') {
